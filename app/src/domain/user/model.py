@@ -1,6 +1,5 @@
 from sqlalchemy import Column, String, Boolean, DateTime, Integer
 from sqlalchemy.sql import func
-from passlib.hash import bcrypt
 
 from ...database import Base
 
