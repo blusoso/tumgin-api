@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from datetime import timedelta
 
 from ..dependencies import get_db
-from ..config import ACCESS_TOKEN_EXPIRE_MINUTES
+from ..config import ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS
 from ..domain.user import schema, services
 
 router = APIRouter(prefix='/auth', tags=["auth"])
@@ -16,7 +16,7 @@ def create_user(user: schema.UserCreate, db: Session = Depends(get_db)):
     return user_created
 
 
-@router.post('/token', response_model=schema.Token)
+@router.post('/login', response_model=schema.Token)
 def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
@@ -36,10 +36,32 @@ def login_for_access_token(
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = services.create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+        db,
+        user_id=user.id,
+        data={"sub": user.id},
+        expires_delta=access_token_expires
     )
 
-    return {'access_token': access_token, 'token_type': 'bearer'}
+    refresh_token_expires = timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+    refresh_token = services.create_refresh_token(
+        db,
+        user_id=user.id,
+        data={"sub": user.id,"refresh": True},
+        expires_delta=refresh_token_expires
+    )
+
+    return {
+        'access_token': access_token,
+        'refresh_token': refresh_token,
+        'token_type': 'bearer'
+    }
+
+@router.post("/refresh")
+def refresh(refresh_token: str):
+    new_access_token = services.refresh_access_token(refresh_token)
+    if new_access_token is None:
+        return {"error": "Invalid refresh token"}
+    return {"access_token": new_access_token}
 
 
 @router.get('/users/me')

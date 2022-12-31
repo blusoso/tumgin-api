@@ -1,16 +1,19 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, constr
 from datetime import datetime
 
 
 class UserBase(BaseModel):
     username: str
-    email: str | None = None
-    first_name: str | None = None
-    last_name: str | None = None
+    email: str
+    gender: int
+    profile_img: str | None = None
+    role: str | None = "user"
 
 
 class UserCreate(UserBase):
-    password_hash: str
+    password: constr(min_length=8)
+    login_with: str | None = 'site'
+    is_consent: bool = True
 
     class Config:
         orm_mode = True
@@ -26,6 +29,7 @@ class UserJWT(UserBase):
 
 class User(UserJWT):
     created_at: datetime
+    updated_at: datetime | None = None
 
     class Config:
         orm_mode = True
@@ -33,6 +37,7 @@ class User(UserJWT):
 
 class Token(BaseModel):
     access_token: str
+    refresh_token: str
     token_type: str
 
     class Config:
