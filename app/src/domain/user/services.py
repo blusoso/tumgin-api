@@ -173,7 +173,7 @@ def verify_token(token: str):
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-def refresh_access_token(refresh_token: str):
+def refresh_access_token(refresh_token: str, db=Session):
     try:
         decoded_token = jwt.decode(refresh_token, JWT_SECRET, algorithms=ALGORITHM)
         if "refresh" in decoded_token:
@@ -181,6 +181,7 @@ def refresh_access_token(refresh_token: str):
             
             access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
             new_access_token = create_access_token(
+                db=db,
                 user_id=user_id,
                 data={"sub": user_id},
                 expires_delta=access_token_expires
