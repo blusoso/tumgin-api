@@ -173,9 +173,10 @@ def verify_token(token: str):
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-def refresh_access_token(refresh_token: str, db=Session):
+def refresh_access_token(refresh_token: dict(), db=Session):
     try:
-        decoded_token = jwt.decode(refresh_token, JWT_SECRET, algorithms=ALGORITHM)
+        to_encode = refresh_token.copy()
+        decoded_token = jwt.decode(to_encode.refresh_token, JWT_SECRET, algorithms=ALGORITHM)
         if "refresh" in decoded_token:
             user_id = decoded_token["sub"]
             

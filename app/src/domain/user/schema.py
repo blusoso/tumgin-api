@@ -48,3 +48,9 @@ class Token(BaseModel):
 
     class Config:
         orm_mode = True
+
+class RefreshToken(BaseModel):
+    refresh_token: str
+
+    class Config:
+        orm_mode = True

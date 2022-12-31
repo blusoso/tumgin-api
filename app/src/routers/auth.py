@@ -57,7 +57,7 @@ def login_for_access_token(
     }
 
 @router.post("/refresh")
-def refresh(refresh_token: str, db: Session = Depends(get_db)):
+def refresh(refresh_token: schema.RefreshToken, db: Session = Depends(get_db)):
     new_access_token = services.refresh_access_token(refresh_token, db)
     if new_access_token is None:
         return {"error": "Invalid refresh token"}
