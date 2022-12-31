@@ -18,11 +18,11 @@ def create_user(user: schema.UserCreate, db: Session = Depends(get_db)):
 
 @router.post('/login', response_model=schema.Token)
 def login_for_access_token(
-    form_data: OAuth2PasswordRequestForm = Depends(),
+    form_data: schema.UserLogin,
     db: Session = Depends(get_db)
 ):
     user = services.authenticate_user(
-        form_data.username,
+        form_data.email,
         form_data.password,
         db
     )
@@ -30,7 +30,7 @@ def login_for_access_token(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Incorrect username or password',
+            detail='Incorrect email or password',
             headers={"WWW-Authenticate": "Bearer"},
         )
 

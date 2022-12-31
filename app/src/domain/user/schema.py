@@ -34,6 +34,12 @@ class User(UserJWT):
     class Config:
         orm_mode = True
 
+class UserLogin(BaseModel):
+    email: str
+    password: constr(min_length=8)
+
+    class Config:
+        orm_mode = True
 
 class Token(BaseModel):
     access_token: str

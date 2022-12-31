@@ -67,10 +67,10 @@ def create_user(user: schema.UserCreate, db: Session):
     db.refresh(db_user)
     return db_user
 
-def authenticate_user(username: str, password: str, db: Session):
-    user = get_user_by_username(username, db)
+def authenticate_user(email: str, password: str, db: Session):
+    user = get_user_by_email(email, db)
     if not user:
-        raise HTTPException(status_code=400, detail="ไม่พบผู้ใช้นี้ในระบบ")
+        raise HTTPException(status_code=400, detail="ไม่พบอีเมลนี้ในระบบ")
     if not verify_password(password, user.password_hash):
         raise HTTPException(status_code=400, detail="รหัสผ่านไม่ถูกต้อง")
 
