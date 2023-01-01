@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from passlib.hash import bcrypt
+from jwt.exceptions import DecodeError, ExpiredSignatureError
 
 from ...dependencies import get_db
 from ...config import oauth2_scheme, JWT_SECRET, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, DEFAULT_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS
@@ -13,7 +14,7 @@ from ..token.refresh_token.model import RefreshToken
 
 PASSWORD_MIN_LENGTH = 8
 
-def get_user_by_id(id: int, db: Session):
+def get_user_by_id(id, db: Session):
     return db.query(model.User).filter(model.User.id == id).first()
 
 
@@ -116,6 +117,7 @@ def create_access_token(
         db_access_token_exist = get_access_token_by_user_id(user_id, db)
         db_access_token_exist.access_token = encoded_jwt
         db_access_token_exist.expired_at = expire
+        db_access_token_exist.deleted_at = None
         db.commit()
         db.refresh(db_access_token_exist)
 
@@ -161,17 +163,11 @@ def create_refresh_token(
         db_refresh_token_exist = get_refresh_token_by_user_id(user_id, db)
         db_refresh_token_exist.refresh_token = encoded_jwt
         db_refresh_token_exist.expired_at = expire
+        db_refresh_token_exist.deleted_at = None
         db.commit()
         db.refresh(db_refresh_token_exist)
 
     return encoded_jwt
-
-def verify_token(token: str):
-    try:
-        decoded_token = jwt.decode(token, JWT_SECRET, algorithm=ALGORITHM)
-        return decoded_token
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid token")
 
 def refresh_access_token(refresh_token: dict(), db=Session):
     try:
@@ -193,8 +189,18 @@ def refresh_access_token(refresh_token: dict(), db=Session):
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
+def check_token(token: str):
+    try:
+        decoded_token = jwt.decode(token, JWT_SECRET, algorithms=ALGORITHM)
+        if decoded_token["exp"] < datetime.utcnow().timestamp():
+            raise ExpiredSignatureError
+        return decoded_token
+    except DecodeError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
 
-def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
+def get_current_user(token: str, db: Session):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -202,20 +208,16 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_
     )
 
     try:
-        payload = jwt.decode(token, JWT_SECRET, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
+        user_id: int = token.get("sub")
+        user = get_user_by_id(user_id, db)
 
-        if username is None:
+        if user is not None:
+            return user
+        else:
             raise credentials_exception
 
-    except JWTError:
+    except (jwt.JWTError, Exception):
         raise credentials_exception
-
-    user = get_user_by_username(username=username, db=db)
-    if user is None:
-        raise credentials_exception
-
-    return user
 
 
 def get_current_active_user(current_user: schema.User = Depends(get_current_user)):

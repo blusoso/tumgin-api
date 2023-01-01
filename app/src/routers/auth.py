@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from datetime import timedelta
 
@@ -9,6 +9,7 @@ from ..domain.user import schema, services
 
 router = APIRouter(prefix='/auth', tags=["auth"])
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 @router.post('/signup', response_model=schema.User)
 def create_user(user: schema.UserCreate, db: Session = Depends(get_db)):
@@ -63,7 +64,16 @@ def refresh(refresh_token: schema.RefreshToken, db: Session = Depends(get_db)):
         return {"error": "Invalid refresh token"}
     return {"access_token": new_access_token}
 
+@router.post("/check-token")
+def check_token(token: str = Depends(oauth2_scheme)):
+    token_status = services.check_token(token)
+    return token_status
 
-@router.get('/users/me')
-async def read_users_me(current_user: schema.User = Depends(services.get_current_active_user)):
+@router.get("/protected")
+def protected(token: str = Depends(check_token)):
+    return {"message": "it's me", "token": token}
+
+@router.get('/users/me', response_model=schema.User)
+async def read_users_me(token: str = Depends(check_token), db: Session = Depends(get_db)):
+    current_user = services.get_current_user(token, db)
     return current_user
