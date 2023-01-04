@@ -28,6 +28,7 @@ class UserJWT(UserBase):
 
 
 class User(UserJWT):
+    login_with: str | None = 'site'
     created_at: datetime
     updated_at: datetime | None = None
 

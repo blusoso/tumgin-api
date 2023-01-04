@@ -104,7 +104,7 @@ def create_access_token(
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, JWT_SECRET, algorithm=ALGORITHM)
 
-    if not is_user_exist_in_access_token: 
+    if not is_user_exist_in_access_token(user_id, db): 
         db_access_token = AccessToken(
             user_id=user_id,
             access_token=encoded_jwt,
@@ -150,7 +150,7 @@ def create_refresh_token(
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, JWT_SECRET, algorithm=ALGORITHM)
 
-    if not is_user_exist_in_refresh_token: 
+    if not is_user_exist_in_refresh_token(user_id, db): 
         db_refresh_token = RefreshToken(
             user_id=user_id,
             refresh_token=encoded_jwt,
