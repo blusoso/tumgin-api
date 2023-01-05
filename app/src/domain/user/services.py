@@ -41,17 +41,30 @@ def check_username_exist(username: str, db: Session):
         raise HTTPException(status_code=400, detail="Username นี้เคยใช้ไปแล้ว")
 
 def check_email_exist(email: str, db: Session):
-    if (get_user_by_email(email, db) is not None):
-        raise HTTPException(status_code=400, detail="Email นี้เคยใช้ไปแล้ว")
+    user = get_user_by_email(email, db)
+    if (user is not None):
+        return {
+            'status': 'error',
+            'message': 'Email นี้เคยใช้ไปแล้ว'
+        }
+    if not user:
+       return {
+            'status': 'error',
+            'message': 'ไม่พบ Email นี้ในระบบ'
+        }
 
 def validate_create_user_form(user: schema.UserCreate, db: Session):
+    if user.login_with == 'site':
+        check_password_length(user.password)
+
     check_email_format(user.email)
-    check_password_length(user.password)
     check_username_exist(user.username, db)
     check_email_exist(user.email, db)
 
 def create_user(user: schema.UserCreate, db: Session):
-    password_hash = bcrypt.hash(user.password)
+    password_hash = ''
+    if user.login_with == 'site':
+        password_hash = bcrypt.hash(user.password)
 
     validate_create_user_form(user, db)
 
@@ -68,10 +81,17 @@ def create_user(user: schema.UserCreate, db: Session):
     db.refresh(db_user)
     return db_user
 
-def authenticate_user(email: str, password: str, db: Session):
+def authenticate_social_user(email: str, db: Session):
     user = get_user_by_email(email, db)
     if not user:
-        raise HTTPException(status_code=400, detail="ไม่พบอีเมลนี้ในระบบ")
+       return {
+            'status': 'error',
+            'message': 'ไม่พบ Email นี้ในระบบ'
+        }
+    return user
+
+def authenticate_user(email: str, password: str, db: Session):
+    user = check_email_exist(email, db)
     if not verify_password(password, user.password_hash):
         raise HTTPException(status_code=400, detail="รหัสผ่านไม่ถูกต้อง")
 

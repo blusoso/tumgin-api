@@ -12,7 +12,7 @@ class User(Base):
     username = Column(String(50), index=True, unique=True)
     password_hash = Column(String(120), nullable=True)
     email = Column(String, unique=True)
-    gender = Column(Integer)
+    gender = Column(Integer, default=0)
     profile_img = Column(String, nullable=True)
     login_with = Column(String, default='site', nullable=True)
     is_active = Column(Boolean, default=True)

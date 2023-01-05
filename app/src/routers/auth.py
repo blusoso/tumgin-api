@@ -22,11 +22,14 @@ def login_for_access_token(
     form_data: schema.UserLogin,
     db: Session = Depends(get_db)
 ):
-    user = services.authenticate_user(
-        form_data.email,
-        form_data.password,
-        db
-    )
+    if form_data.login_with == 'google':
+        user = services.authenticate_social_user(form_data.email, db)
+    elif  form_data.login_with == 'site':
+        user = services.authenticate_user(
+            form_data.email,
+            form_data.password,
+            db
+        )
 
     if not user:
         raise HTTPException(
@@ -56,6 +59,11 @@ def login_for_access_token(
         'refresh_token': refresh_token,
         'token_type': 'bearer'
     }
+
+@router.post('/check-user-exist')
+def check_user_exist(email : schema.CheckEmail, db: Session = Depends(get_db)):
+    user_existed = services.check_email_exist(email.email, db)
+    return user_existed
 
 @router.post("/refresh")
 def refresh(refresh_token: schema.RefreshToken, db: Session = Depends(get_db)):
