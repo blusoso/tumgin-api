@@ -6,8 +6,7 @@ from sqlalchemy.orm import Session
 from passlib.hash import bcrypt
 from jwt.exceptions import DecodeError, ExpiredSignatureError
 
-from ...dependencies import get_db
-from ...config import oauth2_scheme, JWT_SECRET, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, DEFAULT_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS
+from ...config import JWT_SECRET, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, DEFAULT_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS
 from . import schema, model
 from ..token.access_token.model import AccessToken
 from ..token.refresh_token.model import RefreshToken
@@ -42,16 +41,16 @@ def check_username_exist(username: str, db: Session):
 
 def check_email_exist(email: str, db: Session):
     user = get_user_by_email(email, db)
-    if (user is not None):
-        return {
-            'status': 'error',
-            'message': 'Email นี้เคยใช้ไปแล้ว'
-        }
     if not user:
-       return {
-            'status': 'error',
-            'message': 'ไม่พบ Email นี้ในระบบ'
-        }
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="ไม่พบ Email นี้ในระบบ"
+        )
+    return user
+
+def check_email(email: str, db:Session):
+    if (get_user_by_email(email, db) is not None):
+        raise HTTPException(status_code=400, detail="Email นี้เคยใช้ไปแล้ว")
 
 def validate_create_user_form(user: schema.UserCreate, db: Session):
     if user.login_with == 'site':
@@ -59,7 +58,7 @@ def validate_create_user_form(user: schema.UserCreate, db: Session):
 
     check_email_format(user.email)
     check_username_exist(user.username, db)
-    check_email_exist(user.email, db)
+    check_email(user.email, db)
 
 def create_user(user: schema.UserCreate, db: Session):
     password_hash = ''
@@ -84,18 +83,26 @@ def create_user(user: schema.UserCreate, db: Session):
 def authenticate_social_user(email: str, db: Session):
     user = get_user_by_email(email, db)
     if not user:
-       return {
-            'status': 'error',
-            'message': 'ไม่พบ Email นี้ในระบบ'
-        }
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="ไม่พบ Email นี้ในระบบ"
+        )
     return user
 
 def authenticate_user(email: str, password: str, db: Session):
-    user = check_email_exist(email, db)
-    if not verify_password(password, user.password_hash):
-        raise HTTPException(status_code=400, detail="รหัสผ่านไม่ถูกต้อง")
+    user = get_user_by_email(email, db)
+    if user and user.password_hash is not None and user.login_with == 'site':
+        if not verify_password(password, user.password_hash):
+            raise HTTPException(status_code=400, detail="รหัสผ่านไม่ถูกต้อง")
 
-    return user
+        return user
+    else:
+       raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Email หรือ Password ไม่ถูกต้อง',
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
 
 def get_access_token_by_user_id(user_id: int, db: Session):
     return db.query(AccessToken).filter(AccessToken.user_id == user_id).first();

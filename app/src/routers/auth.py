@@ -34,7 +34,7 @@ def login_for_access_token(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Incorrect email or password',
+            detail='Email หรือ Password ไม่ถูกต้อง',
             headers={"WWW-Authenticate": "Bearer"},
         )
 
