@@ -1,17 +1,16 @@
-from sqlalchemy import Column, String, DateTime, Integer, ForeignKey
+from sqlalchemy import Column, String, Boolean, DateTime, Integer, ForeignKey
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 
-from ....database import Base
+from .....database import Base
 
 
-class RefreshToken(Base):
-    __tablename__ = 'refresh_tokens'
+class UserAllergy(Base):
+    __tablename__ = 'user_allergies'
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey('users.id'))
-    refresh_token = Column(String)
-    expired_at = Column(DateTime(timezone=True))
+    ingredient_id = Column(Integer, ForeignKey('ingredients.id'))
     created_at = Column(DateTime(timezone=True),
                         nullable=True, server_default=func.now())
     updated_at = Column(DateTime(timezone=True),
@@ -19,4 +18,6 @@ class RefreshToken(Base):
     deleted_at = Column(DateTime(timezone=True), nullable=True)
 
     user = relationship(
-        'User', back_populates='refresh_token')
+        'User', back_populates='user_allergy')
+    ingredient = relationship(
+        'Ingredient', back_populates='user_allergy')

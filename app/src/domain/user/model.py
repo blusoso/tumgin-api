@@ -27,3 +27,5 @@ class User(Base):
         'AccessToken', back_populates='user')
     refresh_token = relationship(
         'RefreshToken', back_populates='user')
+    user_allergy = relationship(
+        'UserAllergy', back_populates='user')

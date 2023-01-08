@@ -4,7 +4,8 @@ from pydantic import BaseModel
 class IngredientBase(BaseModel):
     name: str
     emoji: str | None = None
-    is_active: bool
+    is_allergy: bool | None = False
+    is_active: bool| None = True
 
     class Config:
         orm_mode = True

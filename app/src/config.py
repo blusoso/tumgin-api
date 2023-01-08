@@ -8,6 +8,7 @@ from fastapi.security import OAuth2PasswordBearer
 API_PREFIX = "/api"
 ROUTE_PREFIX_V1 = "/v1"
 FOOD_ROUTE_PREFIX_V1 = '/food'
+PREFERENCE_ROUTE_PREFIX_V1 = '/preference'
 
 config = Config(".env")
 
