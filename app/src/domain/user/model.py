@@ -29,3 +29,5 @@ class User(Base):
         'RefreshToken', back_populates='user')
     user_allergy = relationship(
         'UserAllergy', back_populates='user')
+    user_diet_type = relationship(
+        'UserDietType', back_populates='user')
