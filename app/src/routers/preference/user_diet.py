@@ -24,3 +24,8 @@ def get_user_diet_types(user_id: int, token: str = Depends(check_token), db: Ses
 def create_user_diet_type(user_diet_type: schema.UserDietTypeCreate, token: str = Depends(check_token), db: Session = Depends(get_db)):
     new_user_diet_type = services.create_user_diet_type(user_diet_type, db)
     return new_user_diet_type
+
+@router.delete('/delete/{id}')
+def delete_user_diet_type(id: int, token: str = Depends(check_token), db: Session = Depends(get_db)):
+    deleted_user_diet_type = services.delete_user_diet_type(id, db)
+    return deleted_user_diet_type

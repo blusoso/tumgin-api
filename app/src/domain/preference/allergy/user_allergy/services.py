@@ -32,7 +32,9 @@ def check_exit_user_allergy(user_allergy: schema.UserAllergyCreate, db: Session)
         .filter(and_(
             model.UserAllergy.user_id == user_allergy.user_id,
             model.UserAllergy.ingredient_id == user_allergy.ingredient_id,
-        )).first()
+        ))\
+        .filter(model.UserAllergy.deleted_at == None)\
+        .first()
 
 def check_duplicate(user_allergy: schema.UserAllergyCreate, db: Session):
     exited_row = check_exit_user_allergy(user_allergy, db)

@@ -26,6 +26,6 @@ def create_user_allergy(user_allergy: schema.UserAllergyCreate, token: str = Dep
     return new_user_allergy
 
 @router.delete('/delete/{id}')
-def create_user_allergy(id: int, token: str = Depends(check_token), db: Session = Depends(get_db)):
+def delete_user_allergy(id: int, token: str = Depends(check_token), db: Session = Depends(get_db)):
     deleted_user_allergy = services.delete_user_allergy(id, db)
     return deleted_user_allergy
