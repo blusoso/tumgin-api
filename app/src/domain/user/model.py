@@ -31,3 +31,4 @@ class User(Base):
         'UserAllergy', back_populates='user')
     user_diet_type = relationship(
         'UserDietType', back_populates='user')
+    recipe = relationship('Recipe', back_populates='user')

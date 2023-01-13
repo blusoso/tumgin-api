@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, DateTime, Integer, ForeignKey
+from sqlalchemy import Column, String, Boolean, DateTime, Integer, ForeignKey, Float
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 
@@ -11,7 +11,7 @@ class RecipeIngredient(Base):
     id = Column(Integer, primary_key=True, index=True)
     recipe_id = Column(Integer, ForeignKey('recipes.id'))
     ingredient_id = Column(Integer, ForeignKey('ingredients.id'))
-    quantity = Column(Integer, default=0)
+    quantity = Column(Float, default=0)
     unit = Column(String)
     is_optional = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)

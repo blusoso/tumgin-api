@@ -11,7 +11,15 @@ router = APIRouter(prefix='/recipe', tags=["recipe"])
 @router.get('/')
 def get_recipes(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     recipes = services.get_recipes(db, skip, limit)
-    return recipes
+    db_recipes = services.create_recipe_list_response(recipes)
+    return db_recipes
+
+
+@router.get('/{id}')
+def get_recipe(id: int, db: Session = Depends(get_db)):
+    recipe = services.get_recipe(db, id)
+    db_recipe = services.create_recipe_response(recipe)
+    return db_recipe
 
 
 @router.post('/', response_model=schema.RecipeCreate)
