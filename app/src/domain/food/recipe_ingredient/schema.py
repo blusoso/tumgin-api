@@ -6,7 +6,7 @@ from ..ingredients.schema import Ingredient
 
 
 class RecipeIngredientBase(BaseModel):
-    quantity: int
+    quantity: float
     unit: str
     is_optional: bool = False
     is_active: bool
@@ -22,7 +22,7 @@ class RecipeIngredientCreate(RecipeIngredientBase):
 
 class RecipeIngredient(RecipeIngredientBase):
     id: int
-    recipe: Recipe
+    recipe_id: int
     ingredient: Ingredient
     created_at: datetime
     updated_at: datetime | None = None
