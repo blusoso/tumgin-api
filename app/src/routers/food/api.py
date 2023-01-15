@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from ...config import FOOD_ROUTE_PREFIX_V1
-from . import recipe, tag, recipe_tag, ingredient, recipe_ingredient
+from . import recipe, tag, recipe_tag, ingredient, recipe_ingredient, direction
 
 router = APIRouter()
 
@@ -11,6 +11,7 @@ def include_api_routes():
     router.include_router(tag.router, prefix=FOOD_ROUTE_PREFIX_V1)
     router.include_router(recipe_tag.router, prefix=FOOD_ROUTE_PREFIX_V1)
     router.include_router(ingredient.router, prefix=FOOD_ROUTE_PREFIX_V1)
+    router.include_router(direction.router, prefix=FOOD_ROUTE_PREFIX_V1)
     router.include_router(recipe_ingredient.router,
                           prefix=FOOD_ROUTE_PREFIX_V1)
 
