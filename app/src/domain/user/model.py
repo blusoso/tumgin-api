@@ -32,3 +32,4 @@ class User(Base):
     user_diet_type = relationship(
         'UserDietType', back_populates='user')
     recipe = relationship('Recipe', back_populates='user')
+    user_like_recipes = relationship('UserLikeRecipe', back_populates='user')

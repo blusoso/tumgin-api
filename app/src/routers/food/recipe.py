@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
-from typing import List
+from typing import List, Optional, Union
 from sqlalchemy.orm import Session
+from fastapi.param_functions import Path
 
 from ...dependencies import get_db
 from ...domain.food.recipes import schema, services
@@ -15,9 +16,9 @@ def get_recipes(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return db_recipes
 
 
-@router.get('/{id}')
-def get_recipe(id: int, db: Session = Depends(get_db)):
-    recipe = services.get_recipe(db, id)
+@router.get('/{recipe_id}')
+def get_recipe(recipe_id: int, user_id: int | None = None, db: Session = Depends(get_db)):
+    recipe = services.get_recipe(db, recipe_id, user_id)
     return recipe
 
 

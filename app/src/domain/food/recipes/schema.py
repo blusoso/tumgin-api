@@ -27,8 +27,8 @@ class RecipeBase(BaseModel):
 
 
 class RecipeCreate(RecipeBase):
-    user_id: int
-    is_active: bool
+    user_id: int | None = None
+    is_active: bool | None = True
 
     class Config:
         orm_mode = True

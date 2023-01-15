@@ -7,6 +7,8 @@ from ....util.text import create_slug
 
 from . import model, schema
 from ...user.model import User
+from ...food.user_like_recipe.model import UserLikeRecipe
+from ...food.user_like_recipe.services import get_user_like_recipe
 
 DEFAULT_LIMIT_RECIPE = 100
 
@@ -24,15 +26,27 @@ def get_recipes(db: Session, skip: int = 0, limit: int = DEFAULT_LIMIT_RECIPE):
     return db_recipe
 
 
-def get_recipe(db: Session, id: int):
+def get_recipe(db: Session, recipe_id: int, user_id: int | None = None):
     db_recipe = db.query(model.Recipe)\
+        .options(subqueryload('user_like_recipes'))\
         .options(subqueryload('user'))\
         .options(subqueryload('recipe_ingredients').joinedload('ingredient'))\
         .options(subqueryload('directions'))\
-        .filter(model.Recipe.id == id)\
+        .filter(model.Recipe.id == recipe_id)\
         .filter(model.Recipe.is_active == True)\
         .filter(model.Recipe.deleted_at == None)\
         .first()
+
+    db_recipe.is_like = False
+
+    if user_id is not None:
+        db_user_like_recipe = get_user_like_recipe(db, user_id, recipe_id)
+
+        if db_user_like_recipe is not None:
+            if db_user_like_recipe.deleted_at:
+                db_recipe.is_like = False
+            else:
+                db_recipe.is_like = True
 
     db_recipe.directions = sorted(db_recipe.directions,
                                   key=lambda x: x.step_number,
