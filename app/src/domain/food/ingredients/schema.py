@@ -4,7 +4,8 @@ from datetime import datetime
 
 class IngredientBase(BaseModel):
     name: str
-    slug: str
+    name_en: str
+    slug: str | None = None
     emoji: str | None = None
     description: str | None = None
     is_allergy: bool | None = False
@@ -21,8 +22,8 @@ class IngredientCreate(IngredientBase):
 class Ingredient(IngredientBase):
     id: int
     created_at: datetime
-    updated_at: datetime
-    deleted_at: datetime
+    updated_at: datetime | None = None
+    deleted_at: datetime | None = None
 
     class Config:
         orm_mode = True

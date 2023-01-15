@@ -19,6 +19,7 @@ class RecipeIngredient(Base):
                         nullable=True, server_default=func.now())
     updated_at = Column(DateTime(timezone=True),
                         nullable=True, onupdate=func.now())
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
 
     recipe = relationship('Recipe', back_populates='recipe_ingredients')
     ingredient = relationship(

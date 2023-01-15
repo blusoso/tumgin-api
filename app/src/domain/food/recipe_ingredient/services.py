@@ -2,11 +2,17 @@ from sqlalchemy.orm import Session
 from . import model, schema
 from fastapi import HTTPException
 
+from ...food.ingredients.model import Ingredient
+
 DEFAULT_LIMIT_RECIPE_INGREDIENT = 100
 
 
 def get_recipe_ingredients(db: Session, skip: int = 0, limit: int = DEFAULT_LIMIT_RECIPE_INGREDIENT):
-    return db.query(model.RecipeIngredient).offset(skip).limit(limit).all()
+    return db.query(model.RecipeIngredient)\
+        .filter(model.RecipeIngredient.is_active == True)\
+        .offset(skip)\
+        .limit(limit)\
+        .all()
 
 
 def create_recipe_ingredient(recipe_ingredient: schema.RecipeIngredientCreate, db: Session):

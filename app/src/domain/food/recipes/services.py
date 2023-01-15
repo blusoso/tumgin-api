@@ -4,6 +4,8 @@ from fastapi import HTTPException
 from decimal import Decimal
 from sqlalchemy import and_
 
+from ....util.text import create_slug
+
 from . import model, schema
 from ..recipe_ingredient.model import RecipeIngredient
 from ..ingredients.model import Ingredient
@@ -80,7 +82,7 @@ def calculate_nutrition_percentage(item_weight: float, total_weight: float):
 
 
 def create_recipes(recipe: schema.RecipeCreate, db: Session):
-    recipe.slug = re.sub('[^0-9a-zA-Z]+', '-', recipe.name_en).lower()
+    recipe.slug = create_slug(recipe.name_en)
 
     total_weight = recipe.protein_gram + recipe.fat_gram + recipe.carb_gram
     recipe.protein_percent = calculate_nutrition_percentage(

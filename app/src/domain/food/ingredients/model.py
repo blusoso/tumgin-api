@@ -10,6 +10,7 @@ class Ingredient(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
+    name_en = Column(String)
     slug = Column(String)
     emoji = Column(String, nullable=True)
     description = Column(Text, nullable=True)

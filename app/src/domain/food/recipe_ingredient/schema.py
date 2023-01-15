@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 from ..recipes.schema import Recipe
+from datetime import datetime
+
 from ..ingredients.schema import Ingredient
 
 
@@ -22,6 +24,9 @@ class RecipeIngredient(RecipeIngredientBase):
     id: int
     recipe: Recipe
     ingredient: Ingredient
+    created_at: datetime
+    updated_at: datetime | None = None
+    deleted_at: datetime | None = None
 
     class Config:
         orm_mode = True
