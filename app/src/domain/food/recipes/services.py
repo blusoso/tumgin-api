@@ -3,13 +3,14 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from decimal import Decimal
 from sqlalchemy import and_
+from sqlalchemy.orm import subqueryload
 
 from ....util.text import create_slug
 
 from . import model, schema
-from ..recipe_ingredient.model import RecipeIngredient
-from ..ingredients.model import Ingredient
 from ...user.model import User
+from ..recipe_ingredient.model import RecipeIngredient
+from ..directions.model import Direction
 
 DEFAULT_LIMIT_RECIPE = 100
 
@@ -28,10 +29,11 @@ def get_recipes(db: Session, skip: int = 0, limit: int = DEFAULT_LIMIT_RECIPE):
 
 
 def get_recipe(db: Session, id: int):
-    db_recipe = db.query(User, model.Recipe)\
-        .join(User, User.id == model.Recipe.user_id)\
+    db_recipe = db.query(model.Recipe)\
+        .options(subqueryload('user'))\
+        .options(subqueryload('recipe_ingredients').joinedload('ingredient'))\
+        .options(subqueryload('directions'))\
         .filter(model.Recipe.id == id)\
-        .filter(User.is_active == True)\
         .filter(model.Recipe.is_active == True)\
         .filter(model.Recipe.deleted_at == None)\
         .first()

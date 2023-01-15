@@ -9,6 +9,7 @@ DEFAULT_LIMIT_RECIPE_INGREDIENT = 100
 def get_recipe_ingredients(db: Session, skip: int = 0, limit: int = DEFAULT_LIMIT_RECIPE_INGREDIENT):
     return db.query(model.RecipeIngredient)\
         .filter(model.RecipeIngredient.is_active == True)\
+        .filter(model.RecipeIngredient.deleted_at == None)\
         .offset(skip)\
         .limit(limit)\
         .all()

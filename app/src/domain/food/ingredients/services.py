@@ -9,7 +9,12 @@ DEFAULT_LIMIT_INGREDIENT = 100
 
 
 def get_ingredients(db: Session, skip: int = 0, limit: int = DEFAULT_LIMIT_INGREDIENT):
-    return db.query(model.Ingredient).offset(skip).limit(limit).all()
+    return db.query(model.Ingredient)\
+        .filter(model.Ingredient.is_active == True)\
+        .filter(model.Ingredient.deleted_at == None)\
+        .offset(skip)\
+        .limit(limit)\
+        .all()
 
 
 def check_exit_ingredient(ingredient: schema.IngredientCreate, db: Session):

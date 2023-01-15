@@ -18,8 +18,7 @@ def get_recipes(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 @router.get('/{id}')
 def get_recipe(id: int, db: Session = Depends(get_db)):
     recipe = services.get_recipe(db, id)
-    db_recipe = services.create_recipe_response(recipe)
-    return db_recipe
+    return recipe
 
 
 @router.post('/', response_model=schema.RecipeCreate)

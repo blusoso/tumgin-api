@@ -39,3 +39,4 @@ class Recipe(Base):
     recipe_tags = relationship('RecipeTag', back_populates='recipe')
     recipe_ingredients = relationship(
         'RecipeIngredient', back_populates='recipe')
+    directions = relationship('Direction', back_populates='recipe')
