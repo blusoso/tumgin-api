@@ -1,16 +1,12 @@
-import re
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from decimal import Decimal
-from sqlalchemy import and_
 from sqlalchemy.orm import subqueryload
 
 from ....util.text import create_slug
 
 from . import model, schema
 from ...user.model import User
-from ..recipe_ingredient.model import RecipeIngredient
-from ..directions.model import Direction
 
 DEFAULT_LIMIT_RECIPE = 100
 
@@ -37,6 +33,10 @@ def get_recipe(db: Session, id: int):
         .filter(model.Recipe.is_active == True)\
         .filter(model.Recipe.deleted_at == None)\
         .first()
+
+    db_recipe.directions = sorted(db_recipe.directions,
+                                  key=lambda x: x.step_number,
+                                  reverse=False)
 
     return db_recipe
 
