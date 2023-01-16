@@ -10,10 +10,10 @@ router = APIRouter(prefix='/recipe', tags=["recipe"])
 
 
 @router.get('/')
-def get_recipes(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    recipes = services.get_recipes(db, skip, limit)
-    db_recipes = services.create_recipe_list_response(recipes)
-    return db_recipes
+def get_recipes(user_id: int | None = None, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    recipes = services.get_recipes(db, user_id, skip, limit)
+    # db_recipes = services.create_recipe_list_response(recipes)
+    return recipes
 
 
 @router.get('/{recipe_id}')
