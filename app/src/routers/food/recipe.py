@@ -1,7 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException
-from typing import List, Optional, Union
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from fastapi.param_functions import Path
 
 from ...dependencies import get_db
 from ...domain.food.recipes import schema, services
@@ -12,7 +10,6 @@ router = APIRouter(prefix='/recipe', tags=["recipe"])
 @router.get('/')
 def get_recipes(user_id: int | None = None, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     recipes = services.get_recipes(db, user_id, skip, limit)
-    # db_recipes = services.create_recipe_list_response(recipes)
     return recipes
 
 

@@ -7,7 +7,6 @@ from ....util.text import create_slug
 
 from . import model, schema
 from ...user.model import User
-from ...food.user_like_recipe.model import UserLikeRecipe
 from ...food.user_like_recipe.services import get_user_like_recipe
 
 DEFAULT_LIMIT_RECIPE = 100
@@ -65,43 +64,6 @@ def get_recipe(db: Session, recipe_id: int, user_id: int | None = None):
                                   reverse=False)
 
     return db_recipe
-
-
-def recipe_response(user, recipe):
-    return schema.RecipeResponse(
-        username=user.username,
-        profile_img=user.profile_img,
-        id=recipe.id,
-        name=recipe.name,
-        name_en=recipe.name_en,
-        slug=recipe.slug,
-        description=recipe.description,
-        thumbnail_img=recipe.thumbnail_img,
-        difficult_level=recipe.difficult_level,
-        calory=recipe.calory,
-        minute=recipe.minute,
-        serving=recipe.serving,
-        protein_gram=recipe.protein_gram,
-        protein_percent=recipe.protein_percent,
-        fat_gram=recipe.fat_gram,
-        fat_percent=recipe.fat_percent,
-        carb_gram=recipe.carb_gram,
-        carb_percent=recipe.carb_percent,
-        is_staff_pick=recipe.is_staff_pick,
-        created_at=recipe.created_at
-    )
-
-
-def create_recipe_list_response(db_recipes):
-    return [recipe_response(user, recipe) for user, recipe in db_recipes]
-
-
-def create_recipe_response(db_recipe):
-    if db_recipe is None:
-        raise HTTPException(status_code=404, detail="Recipe not found.")
-
-    user, recipe = db_recipe
-    return recipe_response(user, recipe)
 
 
 def calculate_nutrition_percentage(item_weight: float, total_weight: float):
