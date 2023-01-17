@@ -49,15 +49,25 @@ def get_recipe(db: Session, recipe_id: int, user_id: int | None = None):
         .options(subqueryload('user'))\
         .options(subqueryload('recipe_ingredients').joinedload('ingredient'))\
         .options(subqueryload('directions'))\
+        .options(subqueryload('reviews').joinedload('user'))\
         .filter(model.Recipe.id == recipe_id)\
         .filter(model.Recipe.is_active == True)\
         .filter(model.Recipe.deleted_at == None)\
         .first()
 
     db_recipe.is_like = False
+    db_recipe.review_amount = 0
+    db_recipe.review_avg = 0
 
     if user_id is not None:
         db_recipe.is_like = create_is_like(db, db_recipe, user_id, recipe_id)
+
+    if len(db_recipe.reviews) > 0:
+        db_recipe.review_amount = len(db_recipe.reviews)
+
+        total_ratings = sum(review.rating for review in db_recipe.reviews)
+        average_rating = total_ratings / len(db_recipe.reviews)
+        db_recipe.review_avg = round(average_rating, 1)
 
     db_recipe.directions = sorted(db_recipe.directions,
                                   key=lambda x: x.step_number,

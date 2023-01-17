@@ -41,3 +41,4 @@ class Recipe(Base):
         'RecipeIngredient', back_populates='recipe')
     directions = relationship('Direction', back_populates='recipe')
     user_like_recipes = relationship('UserLikeRecipe', back_populates='recipe')
+    reviews = relationship('Review', back_populates='recipe')
