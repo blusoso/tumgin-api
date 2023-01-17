@@ -65,8 +65,10 @@ def get_recipe(db: Session, recipe_id: int, user_id: int | None = None):
     if len(db_recipe.reviews) > 0:
         db_recipe.review_amount = len(db_recipe.reviews)
 
-        total_ratings = sum(review.rating for review in db_recipe.reviews)
-        average_rating = total_ratings / len(db_recipe.reviews)
+        reviews_with_rating = [
+            review for review in db_recipe.reviews if review.rating > 0]
+        total_ratings = sum(review.rating for review in reviews_with_rating)
+        average_rating = total_ratings / len(reviews_with_rating)
         db_recipe.review_avg = round(average_rating, 1)
 
     db_recipe.directions = sorted(db_recipe.directions,
