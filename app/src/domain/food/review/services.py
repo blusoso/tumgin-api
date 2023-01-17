@@ -8,6 +8,7 @@ def get_reviews(db: Session, recipe_id: int, skip: int = 0, limit: int = DEFAULT
     return db.query(model.Review)\
         .filter(model.Review.recipe_id == recipe_id)\
         .filter(model.Review.deleted_at == None)\
+        .order_by(model.Review.id.desc())\
         .offset(skip)\
         .limit(limit)\
         .all()
