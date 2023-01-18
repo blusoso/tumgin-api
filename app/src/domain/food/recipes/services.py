@@ -87,12 +87,18 @@ def create_recipes(recipe: schema.RecipeCreate, db: Session):
     recipe.slug = create_slug(recipe.name_en)
 
     total_weight = recipe.protein_gram + recipe.fat_gram + recipe.carb_gram
-    recipe.protein_percent = calculate_nutrition_percentage(
-        recipe.protein_gram, total_weight)
-    recipe.fat_percent = calculate_nutrition_percentage(
-        recipe.fat_gram, total_weight)
-    recipe.carb_percent = calculate_nutrition_percentage(
-        recipe.carb_gram, total_weight)
+
+    if recipe.protein_gram:
+        recipe.protein_percent = calculate_nutrition_percentage(
+            recipe.protein_gram, total_weight)
+
+    if recipe.fat_gram:
+        recipe.fat_percent = calculate_nutrition_percentage(
+            recipe.fat_gram, total_weight)
+
+    if recipe.carb_gram:
+        recipe.carb_percent = calculate_nutrition_percentage(
+            recipe.carb_gram, total_weight)
 
     db_recipe = model.Recipe(**recipe.dict())
     db.add(db_recipe)
