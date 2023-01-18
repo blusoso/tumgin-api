@@ -1,7 +1,11 @@
 from sqlalchemy.orm import Session
-from . import model, schema
 from sqlalchemy import and_
 from datetime import datetime
+
+from ..recipes.model import Recipe
+from ...user.model import User
+
+from . import model, schema
 
 DEFAULT_LIMIT_USER_LIKE_RECIPE = 100
 
@@ -48,3 +52,16 @@ def update_user_like_recipe(user_like_recipe: schema.UserLikeRecipeCreate, db: S
     db.refresh(db_user_like_recipe)
 
     return db_user_like_recipe
+
+
+def get_like_recipes(db: Session, user_id: int, skip: int = 0, limit: int = DEFAULT_LIMIT_USER_LIKE_RECIPE):
+    db_like_recipes = db.query(model.UserLikeRecipe.id, Recipe, User)\
+        .join(Recipe, Recipe.id == model.UserLikeRecipe.recipe_id)\
+        .join(User, Recipe.user_id == User.id)\
+        .filter(model.UserLikeRecipe.user_id == user_id)\
+        .filter(model.UserLikeRecipe.deleted_at == None)\
+        .offset(skip)\
+        .limit(limit)\
+        .all()
+
+    return db_like_recipes
