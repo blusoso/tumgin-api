@@ -26,7 +26,6 @@ def create_is_like(db, db_recipe, user_id, recipe_id):
 
 def get_recipes(db: Session, user_id: int | None = None, skip: int = 0, limit: int = DEFAULT_LIMIT_RECIPE):
     db_recipes = db.query(model.Recipe)\
-        .options(subqueryload('user_like_recipes'))\
         .options(subqueryload('user'))\
         .filter(User.is_active == True)\
         .filter(model.Recipe.is_active == True)\
