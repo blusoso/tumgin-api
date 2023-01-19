@@ -17,3 +17,5 @@ class Image(Base):
     updated_at = Column(DateTime(timezone=True),
                         nullable=True, onupdate=func.now())
     deleted_at = Column(DateTime(timezone=True), nullable=True)
+
+    recipe_images = relationship('RecipeImage', back_populates='image')
