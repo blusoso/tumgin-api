@@ -15,7 +15,6 @@ class Recipe(Base):
     name_en = Column(String)
     slug = Column(String)
     description = Column(Text, nullable=True)
-    thumbnail_img = Column(String, nullable=True)
     difficult_level = Column(Integer)
     calory = Column(Float, nullable=True)
     minute = Column(Integer, nullable=True)

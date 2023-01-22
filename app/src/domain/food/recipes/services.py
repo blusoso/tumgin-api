@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from decimal import Decimal
 from sqlalchemy.orm import subqueryload
+import ast
 
 from ....util.text import create_slug
 
@@ -24,9 +25,14 @@ def create_is_like(db, db_recipe, user_id, recipe_id):
     return db_recipe.is_like
 
 
+def find_recipe_image_type(recipe_images, image_type: str):
+    return [image for image in recipe_images if image.type == image_type]
+
+
 def get_recipes(db: Session, user_id: int | None = None, skip: int = 0, limit: int = DEFAULT_LIMIT_RECIPE):
     db_recipes = db.query(model.Recipe)\
         .options(subqueryload('user'))\
+        .options(subqueryload('recipe_images').joinedload('image'))\
         .filter(User.is_active == True)\
         .filter(model.Recipe.is_active == True)\
         .filter(model.Recipe.deleted_at == None)\
@@ -39,11 +45,19 @@ def get_recipes(db: Session, user_id: int | None = None, skip: int = 0, limit: i
             recipe.is_like = False
             recipe.is_like = create_is_like(db, recipe, user_id, recipe.id)
 
+            recipe.thumbnail_img = find_recipe_image_type(
+                recipe.recipe_images, 'thumbnail')
+            if len(recipe.thumbnail_img) > 0:
+                recipe.thumbnail_img = recipe.thumbnail_img[0].image.img
+            else:
+                recipe.thumbnail_img = None
+
     return db_recipes
 
 
 def get_recipe(db: Session, recipe_id: int, user_id: int | None = None):
     db_recipe = db.query(model.Recipe)\
+        .options(subqueryload('recipe_images').joinedload('image'))\
         .options(subqueryload('user_like_recipes'))\
         .options(subqueryload('user'))\
         .options(subqueryload('recipe_ingredients').joinedload('ingredient'))\

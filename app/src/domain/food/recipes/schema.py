@@ -9,7 +9,6 @@ class RecipeBase(BaseModel):
     name_en: str
     slug: str | None = None
     description: str | None = None
-    thumbnail_img: str | None = None
     difficult_level: int
     calory: float | None = None
     minute: int | None = None

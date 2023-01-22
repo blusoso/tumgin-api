@@ -12,11 +12,11 @@ class RecipeImageBase(BaseModel):
         orm_mode = True
 
 
-class RecipeIngredientCreate(RecipeImageBase):
+class RecipeImageCreate(RecipeImageBase):
     image_id: int
 
 
-class RecipeIngredient(RecipeImageBase):
+class RecipeImage(RecipeImageBase):
     id: int
     image: Image
     created_at: datetime

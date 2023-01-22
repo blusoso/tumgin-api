@@ -8,7 +8,7 @@ from ...image.model import Image
 DEFAULT_LIMIT_RECIPE_INGREDIENT = 100
 
 
-def create_recipe_image(recipe_image: schema.RecipeIngredientCreate, db: Session):
+def create_recipe_image(recipe_image: schema.RecipeImageCreate, db: Session):
     db_recipe_image = model.RecipeImage(**recipe_image.dict())
     db.add(db_recipe_image)
     db.commit()
@@ -18,6 +18,7 @@ def create_recipe_image(recipe_image: schema.RecipeIngredientCreate, db: Session
 
 def get_all_recipe_image(db: Session, recipe_id: int):
     return db.query(
+        model.RecipeImage.id,
         model.RecipeImage.recipe_id,
         model.RecipeImage.type,
         Image.img)\
@@ -28,6 +29,7 @@ def get_all_recipe_image(db: Session, recipe_id: int):
 
 def get_thumbnail(db: Session, recipe_id: int):
     return db.query(
+        model.RecipeImage.id,
         model.RecipeImage.recipe_id,
         model.RecipeImage.type,
         Image.img)\
