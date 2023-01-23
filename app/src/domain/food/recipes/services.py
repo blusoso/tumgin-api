@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from decimal import Decimal
-from sqlalchemy.orm import subqueryload
+from sqlalchemy.orm import subqueryload, eagerload, joinedload
 import ast
 
 from ....util.text import create_slug
@@ -31,14 +31,18 @@ def find_recipe_image_type(recipe_images, image_type: str):
 
 def get_recipes(db: Session, user_id: int | None = None, skip: int = 0, limit: int = DEFAULT_LIMIT_RECIPE):
     db_recipes = db.query(model.Recipe)\
-        .options(subqueryload('user'))\
-        .options(subqueryload('recipe_images').joinedload('image'))\
-        .filter(User.is_active == True)\
+        .options(joinedload('user'))\
+        .options(joinedload('recipe_images').joinedload('image'))\
         .filter(model.Recipe.is_active == True)\
         .filter(model.Recipe.deleted_at == None)\
         .offset(skip)\
         .limit(limit)\
         .all()
+
+    total_recipes = db.query(model.Recipe) \
+        .filter(model.Recipe.is_active == True) \
+        .filter(model.Recipe.deleted_at == None) \
+        .count()
 
     if user_id is not None:
         for recipe in db_recipes:
@@ -52,7 +56,7 @@ def get_recipes(db: Session, user_id: int | None = None, skip: int = 0, limit: i
             else:
                 recipe.thumbnail_img = None
 
-    return db_recipes
+    return {'total_recipes': total_recipes, 'recipes': db_recipes}
 
 
 def get_recipe(db: Session, recipe_id: int, user_id: int | None = None):
